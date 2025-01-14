@@ -12,7 +12,7 @@ public class SessionManager {
     private var sessionServerBaseUrl = "https://session.web3auth.io/v2/"
     private var sessionId: String = ""
 
-    private let sessionNamespace: String = ""
+    private var sessionNamespace: String = ""
     private let sessionTime: Int
     private let allowedOrigin: String
 
@@ -34,9 +34,12 @@ public class SessionManager {
         return KeychainManager.shared.delete(key: .sessionID)
     }
 
-    public init(sessionServerBaseUrl: String? = nil, sessionTime: Int = 86400, allowedOrigin: String? = "*", sessionId: String? = nil) {
+    public init(sessionServerBaseUrl: String? = nil, sessionTime: Int = 86400, allowedOrigin: String? = "*", sessionId: String? = nil, sessionNamespace: String? = nil) {
         if sessionId != nil {
             self.sessionId = sessionId!
+        }
+        if sessionNamespace != nil {
+            self.sessionNamespace = sessionNamespace!
         }
         if let sessionServerBaseUrl = sessionServerBaseUrl {
             self.sessionServerBaseUrl = sessionServerBaseUrl
@@ -87,7 +90,7 @@ public class SessionManager {
             guard let sigJsonStr = String(data: sigData, encoding: .utf8) else {
                 throw SessionManagerError.stringEncodingError
             }
-            let sessionRequestModel = SessionRequestModel(key: publicKeyHex, data: encData, signature: sigJsonStr, timeout: sessionTime, allowedOrigin: allowedOrigin)
+            let sessionRequestModel = SessionRequestModel(key: publicKeyHex, data: encData, signature: sigJsonStr, timeout: sessionTime, allowedOrigin: allowedOrigin, namespace: sessionNamespace)
             let api = Router.set(T: sessionRequestModel)
             let result = await Service.request(router: api)
             switch result {
@@ -113,7 +116,7 @@ public class SessionManager {
         let sessionSecret = try curveSecp256k1.SecretKey(hex: sessionId)
         
         let publicKeyHex = try sessionSecret.toPublic().serialize(compressed: false)
-        let authorizeSession = AuthorizeSessionRequest(key: publicKeyHex)
+        let authorizeSession = AuthorizeSessionRequest(key: publicKeyHex, namespace: sessionNamespace)
         let api = Router.authorizeSession(T: authorizeSession, origin: origin)
         let result = await Service.request(router: api)
         switch result {

@@ -16,20 +16,28 @@ struct SessionRequestModel: Codable {
     var signature: String
     var timeout: Int
     var allowedOrigin: String?
+    var namespace: String?
 
-    public init(key: String, data: String, signature: String, timeout: Int, allowedOrigin: String? = "*") {
+    public init(key: String, data: String, signature: String, timeout: Int, allowedOrigin: String? = "*", namespace: String? = nil) {
         self.key = key
         self.data = data
         self.signature = signature
         self.timeout = timeout
         self.allowedOrigin = allowedOrigin
+        if namespace != nil {
+            self.namespace = namespace
+        }
     }
 }
 
 struct AuthorizeSessionRequest: Codable {
     var key: String
-    public init(key: String) {
+    var namespace: String?
+    public init(key: String, namespace: String?) {
         self.key = key
+        if namespace != nil {
+            self.namespace = namespace
+        }
     }
 }
 

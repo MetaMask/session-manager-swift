@@ -17,7 +17,7 @@ final class SessionManagementTest: XCTestCase {
 
     func test_createSessionID() async throws {
         let sessionId = try SessionManager.generateRandomSessionID();
-        let session = SessionManager(sessionId: sessionId)
+        let session = SessionManager(sessionId: sessionId, sessionNamespace: "sfa")
         let (privKey, pubKey) = try generatePrivateandPublicKey()
         let sfa = SFAModel(publicKey: pubKey, privateKey: privKey)
         let _ = try await session.createSession(data: sfa)
@@ -25,7 +25,7 @@ final class SessionManagementTest: XCTestCase {
 
     func test_authoriseSessionID() async throws {
         let sessionId = try SessionManager.generateRandomSessionID();
-        let session = SessionManager(sessionId: sessionId)
+        let session = SessionManager(sessionId: sessionId, sessionNamespace: "sfa")
         let (privKey, pubKey) = try generatePrivateandPublicKey()
         let sfa = SFAModel(publicKey: pubKey, privateKey: privKey)
         let created = try await session.createSession(data: sfa)
@@ -70,7 +70,7 @@ final class SessionManagementTest: XCTestCase {
 
     func test_invalidateSession() async throws {
         let sessionId = try SessionManager.generateRandomSessionID();
-        let session = SessionManager(sessionId: sessionId)
+        let session = SessionManager(sessionId: sessionId, sessionNamespace: "sfa")
         let (privKey, pubKey) = try generatePrivateandPublicKey()
         let sfa = SFAModel(publicKey: pubKey, privateKey: privKey)
         let created = try await session.createSession(data: sfa)
