@@ -47,7 +47,8 @@ extension Data {
     }
 
     func addLeading0sForLength64() -> Data {
-        Data(hexString: hexString.padStart(toLength: 64, padString: "0")) ?? Data()
+        let hex = map { String(format: "%02x", $0) }.joined()
+        return Data(hexString: hex.padStart(toLength: 64, padString: "0")) ?? Data()
     }
 
     static func randomOfLength(_ length: Int) -> Data? {

@@ -1,15 +1,11 @@
-//
-//  File.swift
-//
-//
-//  Created by Dhruv Jaiswal on 10/04/23.
-//
-
 import Foundation
 
 enum HTTPMethod {
     case get([URLQueryItem])
     case post(T: Encodable)
+    case put(T: Encodable)
+    case patch(T: Encodable)
+    case delete(T: Encodable)
 
     var name: String {
         switch self {
@@ -17,12 +13,17 @@ enum HTTPMethod {
             return "GET"
         case .post:
             return "POST"
+        case .put:
+            return "PUT"
+        case .patch:
+            return "PATCH"
+        case .delete:
+            return "DELETE"
         }
     }
 }
 
 protocol NetworkManagerProtocol {
-    static var baseURL: String { get }
     var path: String { get }
     var httpMethod: HTTPMethod { get }
     var headers: [String: String] { get }

@@ -1,10 +1,3 @@
-//
-//  File.swift
-//
-//
-//  Created by Dhruv Jaiswal on 18/07/22.
-//
-
 import KeychainSwift
 
 public enum KeychainConstantEnum {
@@ -30,13 +23,20 @@ protocol KeychainManagerProtocol {
 }
 
 public class KeychainManager: KeychainManagerProtocol {
-    private let keychain = KeychainSwift()
+    private let keychain: KeychainSwift
     public static let shared = KeychainManager()
     public var getAllKeys: [String] {
         return keychain.allKeys
     }
 
-    private init() {}
+    public init(keyPrefix: String = "", accessGroup: String? = nil) {
+        if keyPrefix.isEmpty {
+            keychain = KeychainSwift()
+        } else {
+            keychain = KeychainSwift(keyPrefix: keyPrefix)
+        }
+        keychain.accessGroup = accessGroup
+    }
 
     public func get(key: KeychainConstantEnum) -> String? {
         return keychain.get(key.value)
@@ -48,5 +48,13 @@ public class KeychainManager: KeychainManagerProtocol {
 
     public func save(key: KeychainConstantEnum, val: String) {
         keychain.set(val, forKey: key.value)
+    }
+
+    public func keys(withPrefix prefix: String) -> [String] {
+        return keychain.allKeys.filter { $0.hasPrefix(prefix) }
+    }
+
+    public func deleteKeys(withPrefix prefix: String) {
+        keys(withPrefix: prefix).forEach { keychain.delete($0) }
     }
 }
