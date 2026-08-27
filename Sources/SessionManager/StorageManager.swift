@@ -116,7 +116,7 @@ public class StorageManager<T: Codable>: BaseStorageManager<T> {
         try await createSession(data: data, headers: [:])
     }
 
-    public func authorizeSession(origin: String = "", headers: [String: String] = [:]) async throws -> T {
+    public func authorizeSession(headers: [String: String]) async throws -> T {
         try checkSessionParams()
         if let localData: T = await safeLocalStorageOp({ handler in
             try await handler.retrieveData(key: self.sessionId, options: StorageHandlerRetrieveOptions())
@@ -127,8 +127,7 @@ public class StorageManager<T: Codable>: BaseStorageManager<T> {
             key: sessionId,
             options: StorageHandlerRetrieveOptions(
                 headers: headers,
-                namespace: sessionNamespace.isEmpty ? nil : sessionNamespace,
-                origin: origin
+                namespace: sessionNamespace.isEmpty ? nil : sessionNamespace
             )
         ) else {
             throw StorageManagerError.dataNotFound
@@ -140,7 +139,7 @@ public class StorageManager<T: Codable>: BaseStorageManager<T> {
     }
 
     public override func authorizeSession() async throws -> T {
-        try await authorizeSession(origin: "", headers: [:])
+        try await authorizeSession(headers: [:])
     }
 
     public func updateSession<U: Encodable>(data: U, headers: [String: String] = [:]) async throws {

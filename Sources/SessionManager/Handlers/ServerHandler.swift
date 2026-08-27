@@ -53,14 +53,10 @@ public class ServerHandler<T: Codable>: StorageHandler {
     public func retrieveData(key: Hex, options: StorageHandlerRetrieveOptions = StorageHandlerRetrieveOptions()) async throws -> T? {
         let pubKey = try getStorageKey(key: key)
         let body = AuthorizeSessionRequest(key: pubKey, namespace: options.namespace)
-        var headers = mergedHeaders(options.headers)
-        if let origin = options.origin {
-            headers["origin"] = origin
-        }
         let data = try await request(ApiRequestParams(
             url: joinURL(sessionServerBaseUrl, "v2/store/get"),
             method: "POST",
-            headers: headers,
+            headers: mergedHeaders(options.headers),
             body: try JSONEncoder().encode(body)
         ))
         let result = try JSONDecoder().decode(SessionApiResponse.self, from: data)

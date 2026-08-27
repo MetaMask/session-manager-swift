@@ -37,7 +37,7 @@ class ViewController: UIViewController {
             let sfa = SFAModel(publicKey: pubKey, privateKey: privKey)
             let created = try await session.createSession(data: sfa)
             StorageManager<SFAModel>.saveSessionIdToStorage(created)
-            let auth = try await session.authorizeSession(origin: "")
+            let auth = try await session.authorizeSession()
             print(created)
             print(auth)
         }

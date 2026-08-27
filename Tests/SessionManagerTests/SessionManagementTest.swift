@@ -37,7 +37,7 @@ final class SessionManagementTest: XCTestCase {
         let created = try await session.createSession(data: sfa)
         StorageManager<SFAModel>.saveSessionIdToStorage(created)
         XCTAssertFalse(created.isEmpty)
-        let auth = try await session.authorizeSession(origin: "")
+        let auth = try await session.authorizeSession()
         XCTAssertEqual(auth.privateKey, privKey)
         XCTAssertEqual(auth.publicKey, pubKey)
     }
@@ -92,7 +92,7 @@ final class SessionManagementTest: XCTestCase {
         _ = try await session.createSession(data: sfa)
         let updated = SFAModel(publicKey: pubKey, privateKey: privKey)
         try await session.updateSession(data: updated)
-        let auth = try await session.authorizeSession(origin: "")
+        let auth = try await session.authorizeSession()
         XCTAssertEqual(auth, updated)
     }
 
@@ -103,9 +103,9 @@ final class SessionManagementTest: XCTestCase {
             let (privKey, pubKey) = try generatePrivateandPublicKey()
             let sfa = SFAModel(publicKey: pubKey, privateKey: privKey)
             _ = try await session.createSession(data: sfa)
-            _ = try await session.authorizeSession(origin: "origin")
+            _ = try await session.authorizeSession()
             sleep(2)
-            _ = try await session.authorizeSession(origin: "origin")
+            _ = try await session.authorizeSession()
         } catch StorageManagerError.dataNotFound {
             caughtCorrectError = true
         }
@@ -126,7 +126,7 @@ final class SessionManagementTest: XCTestCase {
             sessionId: sessionId,
             useLocalStorage: true
         )
-        let auth = try await cached.authorizeSession(origin: "")
+        let auth = try await cached.authorizeSession()
         XCTAssertEqual(auth, sfa)
         try cached.clearStorage()
     }
@@ -139,7 +139,7 @@ final class SessionManagementTest: XCTestCase {
             useLocalStorage: true
         )
         do {
-            _ = try await session.authorizeSession(origin: "")
+            _ = try await session.authorizeSession()
             XCTFail("Expected server fallback to fail when local cache misses")
         } catch {
             XCTAssertNotNil(error)
@@ -155,7 +155,7 @@ final class SessionManagementTest: XCTestCase {
         _ = try await session.createSession(data: sfa)
         let cacheKey = try XCTUnwrap(session.localStorageHandlerStorageKey)
         KeychainManager.shared.save(key: .custom(cacheKey), val: "{not-json")
-        let auth = try await session.authorizeSession(origin: "")
+        let auth = try await session.authorizeSession()
         XCTAssertEqual(auth, sfa)
         try session.clearStorage()
     }

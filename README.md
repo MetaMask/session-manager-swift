@@ -52,7 +52,7 @@ let storage = StorageManager<MySessionData>(
 )
 
 let sessionId = try await storage.createSession(data: MySessionData(userId: "123"))
-let sessionData = try await storage.authorizeSession(origin: "")
+let sessionData = try await storage.authorizeSession()
 try await storage.updateSession(data: MySessionData(userId: "123"))
 _ = try await storage.invalidateSession()
 ```
@@ -109,7 +109,7 @@ Unauthenticated requests omit the Authorization header and do not retry 401s.
 | No `updateSession` | `updateSession(data:)` via `PUT /v2/store/update` |
 | `invalidateSession()` leaves `sessionId` set | Clears local cache and resets `_sessionId` |
 | `generateRandomSessionID()` unprefixed hex | `generateRandomSessionKey()` returns `0x`-prefixed 32-byte hex |
-| Static `Router.baseURL` | Per-instance URL; multiple managers can use different hosts |
+| `authorizeSession(origin:)` | `authorizeSession()` — CORS is set via `allowedOrigin` on create/update |
 
 ```swift
 // v6

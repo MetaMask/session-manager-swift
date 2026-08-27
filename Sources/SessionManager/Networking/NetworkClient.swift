@@ -4,7 +4,7 @@ enum Router: NetworkManagerProtocol {
     case get([URLQueryItem])
     case set(T: Encodable)
     case update(T: Encodable)
-    case authorizeSession(T: Encodable, origin: String)
+    case authorizeSession(T: Encodable)
 
     var path: String {
         switch self {
@@ -27,21 +27,13 @@ enum Router: NetworkManagerProtocol {
             return .post(T: params)
         case let .update(params):
             return .put(T: params)
-        case let .authorizeSession(params, _):
+        case let .authorizeSession(params):
             return .post(T: params)
         }
     }
 
     var headers: [String: String] {
-        switch self {
-        case .get, .set, .update:
-            return ["Content-Type": "application/json"]
-        case let .authorizeSession(_, origin):
-            return [
-                "Content-Type": "application/json",
-                "origin": origin
-            ]
-        }
+        return ["Content-Type": "application/json"]
     }
 }
 

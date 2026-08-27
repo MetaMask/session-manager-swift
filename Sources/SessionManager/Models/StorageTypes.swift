@@ -60,12 +60,10 @@ public struct StorageHandlerStoreOptions {
 public struct StorageHandlerRetrieveOptions {
     public var headers: [String: String]
     public var namespace: String?
-    public var origin: String?
 
-    public init(headers: [String: String] = [:], namespace: String? = nil, origin: String? = nil) {
+    public init(headers: [String: String] = [:], namespace: String? = nil) {
         self.headers = headers
         self.namespace = namespace
-        self.origin = origin
     }
 }
 
