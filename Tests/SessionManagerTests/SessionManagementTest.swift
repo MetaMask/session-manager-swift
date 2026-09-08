@@ -14,7 +14,7 @@ final class SessionManagementTest: XCTestCase {
 
     private func makeSession(sessionTime: Int = 86400, sessionId: String? = nil, namespace: String? = "sfa", useLocalStorage: Bool = false) throws -> StorageManager<SFAModel> {
         let id = try sessionId ?? StorageManager<SFAModel>.generateRandomSessionKey()
-        return StorageManager<SFAModel>(
+        return try StorageManager<SFAModel>(
             sessionServerBaseUrl: sessionServer,
             sessionNamespace: namespace,
             sessionTime: sessionTime,
@@ -43,7 +43,7 @@ final class SessionManagementTest: XCTestCase {
     }
 
     func testEncryptDecryptData() throws {
-        let session = StorageManager<SFAModel>(sessionServerBaseUrl: sessionServer)
+        let session = try StorageManager<SFAModel>(sessionServerBaseUrl: sessionServer)
         let privKey = "dda863b615ac6de27fb680b5563db3c19176a6f42cc1dee1768e220983385e3e"
         let dt = ["data": "data"]
         let dataToEncrypt = try JSONSerialization.data(withJSONObject: dt)
@@ -120,7 +120,7 @@ final class SessionManagementTest: XCTestCase {
         let sfa = SFAModel(publicKey: pubKey, privateKey: privKey)
         _ = try await live.createSession(data: sfa)
 
-        let cached = StorageManager<SFAModel>(
+        let cached = try StorageManager<SFAModel>(
             sessionServerBaseUrl: "https://invalid.example.invalid",
             sessionNamespace: namespace,
             sessionId: sessionId,
@@ -132,7 +132,7 @@ final class SessionManagementTest: XCTestCase {
     }
 
     func test_authorize_local_cache_miss_without_server_fails() async throws {
-        let session = StorageManager<SFAModel>(
+        let session = try StorageManager<SFAModel>(
             sessionServerBaseUrl: "https://invalid.example.invalid",
             sessionNamespace: "sfa-miss",
             sessionId: try StorageManager<SFAModel>.generateRandomSessionKey(),

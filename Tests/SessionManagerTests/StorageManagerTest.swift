@@ -10,28 +10,28 @@ final class StorageManagerTest: XCTestCase {
     }
 
     func testSetSessionIdPadsAndPrefixes() throws {
-        let session = StorageManager<SFAModel>(sessionServerBaseUrl: SESSION_SERVER_API_URL)
+        let session = try StorageManager<SFAModel>(sessionServerBaseUrl: SESSION_SERVER_API_URL)
         try session.setSessionId(sessionId: "abc")
         XCTAssertEqual(session.sessionId, "0x" + String(repeating: "0", count: 61) + "abc")
     }
 
-    func testSetSessionIdRejectsNonHex() {
-        let session = StorageManager<SFAModel>(sessionServerBaseUrl: SESSION_SERVER_API_URL)
+    func testSetSessionIdRejectsNonHex() throws {
+        let session = try StorageManager<SFAModel>(sessionServerBaseUrl: SESSION_SERVER_API_URL)
         XCTAssertThrowsError(try session.setSessionId(sessionId: "not-hex")) { error in
             XCTAssertEqual(error as? StorageManagerError, StorageManagerError.invalidSessionId)
         }
     }
 
-    func testCheckSessionParamsThrowsWhenMissing() {
-        let session = StorageManager<SFAModel>(sessionServerBaseUrl: SESSION_SERVER_API_URL)
+    func testCheckSessionParamsThrowsWhenMissing() throws {
+        let session = try StorageManager<SFAModel>(sessionServerBaseUrl: SESSION_SERVER_API_URL)
         XCTAssertThrowsError(try session.checkSessionParams()) { error in
             XCTAssertEqual(error as? StorageManagerError, StorageManagerError.sessionIdAbsent)
         }
     }
 
-    func testSessionServerBaseUrlIsPerInstance() {
-        let first = StorageManager<SFAModel>(sessionServerBaseUrl: "https://session-a.example")
-        let second = StorageManager<SFAModel>(sessionServerBaseUrl: "https://session-b.example")
+    func testSessionServerBaseUrlIsPerInstance() throws {
+        let first = try StorageManager<SFAModel>(sessionServerBaseUrl: "https://session-a.example")
+        let second = try StorageManager<SFAModel>(sessionServerBaseUrl: "https://session-b.example")
         XCTAssertEqual(first.sessionServerBaseUrl, "https://session-a.example")
         XCTAssertEqual(second.sessionServerBaseUrl, "https://session-b.example")
     }
@@ -67,6 +67,15 @@ final class StorageManagerTest: XCTestCase {
         XCTAssertNil(store.getItem("sfa:one"))
         XCTAssertNil(store.getItem("sfa:two"))
         XCTAssertEqual(store.getItem("other:three"), "3")
+    }
+
+    func testInitThrowsWhenSessionIdIsInvalid() {
+        XCTAssertThrowsError(try StorageManager<SFAModel>(
+            sessionServerBaseUrl: SESSION_SERVER_API_URL,
+            sessionId: "not-hex"
+        )) { error in
+            XCTAssertEqual(error as? StorageManagerError, StorageManagerError.invalidSessionId)
+        }
     }
 
     func testPadHexHelpers() {

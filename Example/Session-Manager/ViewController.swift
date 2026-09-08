@@ -29,7 +29,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         Task {
             let sessionId = try StorageManager<SFAModel>.generateRandomSessionKey()
-            session = StorageManager<SFAModel>(
+            session = try StorageManager<SFAModel>(
                 sessionServerBaseUrl: SESSION_SERVER_API_URL,
                 sessionId: sessionId
             )

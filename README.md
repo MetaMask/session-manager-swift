@@ -44,7 +44,7 @@ pod 'TorusSessionManager', '~> 7.0.0'
 ```swift
 import SessionManager
 
-let storage = StorageManager<MySessionData>(
+let storage = try StorageManager<MySessionData>(
     sessionServerBaseUrl: SESSION_SERVER_API_URL,
     sessionNamespace: "my-app",
     sessionId: try StorageManager<MySessionData>.generateRandomSessionKey(),
@@ -116,7 +116,7 @@ Unauthenticated requests omit the Authorization header and do not retry 401s.
 let session = SessionManager(sessionId: id, sessionNamespace: "sfa")
 
 // v7
-let session = StorageManager<MyData>(
+let session = try StorageManager<MyData>(
     sessionServerBaseUrl: SESSION_SERVER_API_URL,
     sessionNamespace: "sfa",
     sessionId: id

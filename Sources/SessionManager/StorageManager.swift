@@ -36,7 +36,7 @@ public class StorageManager<T: Codable>: BaseStorageManager<T> {
         sessionId: Hex? = nil,
         allowedOrigin: String? = "*",
         useLocalStorage: Bool = false
-    ) {
+    ) throws {
         self.sessionServerBaseUrl = sessionServerBaseUrl
         if let sessionNamespace = sessionNamespace {
             self.sessionNamespace = sessionNamespace
@@ -50,12 +50,12 @@ public class StorageManager<T: Codable>: BaseStorageManager<T> {
             return try await self.request(params)
         }
         if let sessionId = sessionId {
-            try? setSessionId(sessionId: sessionId)
+            try setSessionId(sessionId: sessionId)
         }
     }
 
-    public convenience init(options: StorageManagerOptions) {
-        self.init(
+    public convenience init(options: StorageManagerOptions) throws {
+        try self.init(
             sessionServerBaseUrl: options.sessionServerBaseUrl,
             sessionNamespace: options.sessionNamespace,
             sessionTime: options.sessionTime ?? defaultSessionTimeout,
