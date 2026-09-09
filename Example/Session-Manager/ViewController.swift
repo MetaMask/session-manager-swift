@@ -16,7 +16,7 @@ class ViewController: UIViewController {
         let privateKey: String
     }
     
-    var session: SessionManager!
+    var session: StorageManager<SFAModel>!
 
     private func generatePrivateandPublicKey() throws -> (privKey: String, pubKey: String) {
         let privKeyData = curveSecp256k1.SecretKey()
@@ -28,21 +28,22 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         Task {
-            let sessionId = try SessionManager.generateRandomSessionID()!;
-            session = SessionManager(sessionId: sessionId)
+            let sessionId = try StorageManager<SFAModel>.generateRandomSessionKey()
+            session = try StorageManager<SFAModel>(
+                sessionServerBaseUrl: SESSION_SERVER_API_URL,
+                sessionId: sessionId
+            )
             let (privKey, pubKey) = try generatePrivateandPublicKey()
             let sfa = SFAModel(publicKey: pubKey, privateKey: privKey)
             let created = try await session.createSession(data: sfa)
-            SessionManager.saveSessionIdToStorage(sessionId)
-                    let auth = try await session.authorizeSession(origin: "")
+            StorageManager<SFAModel>.saveSessionIdToStorage(created)
+            let auth = try await session.authorizeSession()
             print(created)
+            print(auth)
         }
-        // Do any additional setup after loading the view, typically from a nib.
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
-
 }
