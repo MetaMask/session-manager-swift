@@ -19,10 +19,17 @@ public struct RefreshResponse: Codable {
     public let refresh_token: String
     public let session_data: String
 
-    public init(access_token: String, refresh_token: String, session_data: String) {
+    public init(access_token: String = "", refresh_token: String = "", session_data: String = "") {
         self.access_token = access_token
         self.refresh_token = refresh_token
         self.session_data = session_data
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        access_token = try container.decodeIfPresent(String.self, forKey: .access_token) ?? ""
+        refresh_token = try container.decodeIfPresent(String.self, forKey: .refresh_token) ?? ""
+        session_data = try container.decodeIfPresent(String.self, forKey: .session_data) ?? ""
     }
 }
 
