@@ -26,13 +26,13 @@ Torus Session Manager Swift is the SDK that gives you two session modules:
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/Web3Auth/session-manager-swift.git", from: "7.0.0")
+.package(url: "https://github.com/Web3Auth/session-manager-swift.git", from: "7.0.1")
 ```
 
 ### CocoaPods
 
 ```ruby
-pod 'TorusSessionManager', '~> 7.0.0'
+pod 'TorusSessionManager', '~> 7.0.1'
 ```
 
 ## Storage Manager

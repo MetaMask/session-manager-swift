@@ -116,6 +116,54 @@ final class AuthSessionManagerTest: XCTestCase {
         XCTAssertEqual(access, "storage-token")
     }
 
+    func testRefreshResponseDefaultsMissingTokensToEmptyString() throws {
+        let payload = """
+        {"session_data":"encrypted-blob"}
+        """.data(using: .utf8)!
+        let response = try JSONDecoder().decode(RefreshResponse.self, from: payload)
+        XCTAssertEqual(response.access_token, "")
+        XCTAssertEqual(response.refresh_token, "")
+        XCTAssertEqual(response.session_data, "encrypted-blob")
+    }
+
+    func testRefreshResponseDefaultsNullTokensToEmptyString() throws {
+        let payload = """
+        {"access_token":null,"refresh_token":null,"session_data":"blob"}
+        """.data(using: .utf8)!
+        let response = try JSONDecoder().decode(RefreshResponse.self, from: payload)
+        XCTAssertEqual(response.access_token, "")
+        XCTAssertEqual(response.refresh_token, "")
+        XCTAssertEqual(response.session_data, "blob")
+    }
+
+    func testEnsureRefreshSucceedsWhenTokensOmittedFromBody() async throws {
+        let memory = MemoryStorageAdapter()
+        let urlSession = MockURLProtocol.makeSession()
+        let sessionId = try StorageManager<DemoSession>.generateRandomSessionKey()
+        let encrypted = try CryptoHelpers.encryptEncodable(privkeyHex: sessionId, DemoSession(userId: "42"))
+        MockURLProtocol.handler = { request in
+            XCTAssertEqual(request.url?.path, "/v1/auth/session")
+            let body = try JSONSerialization.data(withJSONObject: ["session_data": encrypted])
+            return (200, body)
+        }
+        let session = AuthSessionManager<DemoSession>(options: AuthSessionManagerOptions(
+            apiClientConfig: ApiClientConfig(baseURL: "https://auth.example"),
+            storage: StorageConfig(sessionId: memory, accessToken: memory, refreshToken: memory, idToken: memory),
+            urlSession: urlSession
+        ))
+        try await session.setTokens(AuthTokens(sessionId: sessionId, accessToken: "access", refreshToken: "refresh"))
+        let response = try await session.ensureRefresh(skipIfFresh: false)
+        XCTAssertEqual(response.access_token, "")
+        XCTAssertEqual(response.refresh_token, "")
+        XCTAssertEqual(response.session_data, encrypted)
+        let storedAccess = try await session.getAccessToken()
+        let storedRefresh = try await session.getRefreshToken()
+        XCTAssertEqual(storedAccess, "access")
+        XCTAssertEqual(storedRefresh, "refresh")
+        let data = try await session.authorize()
+        XCTAssertEqual(data, DemoSession(userId: "42"))
+    }
+
     func testRefreshDedupSharesInFlightRequest() async throws {
         let memory = MemoryStorageAdapter()
         let urlSession = MockURLProtocol.makeSession()
